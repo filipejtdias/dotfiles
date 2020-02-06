@@ -1,0 +1,51 @@
+tap "homebrew/bundle"
+tap "homebrew/cask"
+tap "homebrew/core"
+
+brew "autoconf"
+brew "automake"
+brew "openssl@1.1"
+brew "cask"
+brew "coreutils"
+brew "ext4fuse"
+brew "git"
+brew "git-lfs"
+brew "readline"
+brew "libtool"
+brew "imagemagick"
+brew "libksba"
+brew "libyaml"
+brew "mas"
+brew "pkg-config"
+brew "zlib"
+
+cask "osxfuse"
+cask "franz"
+cask "imageoptim"
+cask "iterm2"
+cask "qlcolorcode"
+cask "qlimagesize"
+cask "qlmarkdown"
+cask "qlprettypatch"
+cask "qlstephen"
+cask "qlvideo"
+cask "quicklook-csv"
+cask "quicklook-json"
+cask "quicklookase"
+cask "sourcetree"
+cask "spotify"
+cask "sublime-text"
+cask "suspicious-package"
+cask "tunnelblick"
+cask "vlc"
+cask "webpquicklook"
+cask "zeplin"
+
+mas "The Unarchiver", id: 425424353
+mas "VPN Unlimited", id: 727593140
+mas "Wunderlist", id: 410628904
+mas "1 Password", id: 1333542190
+mas "Feedly", id: 865500966 
+mas "Trello", id: 1278508951
+mas "Slack", id: 803453959 
+mas "BetterSnapTool", id: 417375580 

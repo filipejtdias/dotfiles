@@ -1,0 +1,116 @@
+#!/bin/bash
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# Folders
+alias desktop="cd ~/Desktop/"
+alias code="cd ~/code/"
+alias personal="code && cd personal/"
+alias work="code && cd work/"
+
+# Helpers
+[[ -s "$HOME/.profile" ]] && source "$HOME/.profile" # Load the default .profile
+
+alias bashprofile='sublime ~/.bash_profile'
+alias reload='source ~/.bash_profile'
+alias dotfiles="personal && cd dotfiles && sublime ."
+
+ulimit -n 1024
+
+alias http-server='python -m SimpleHTTPServer 8000'
+alias show-connected-devices='arp -i bridge100 -a' # Show connected devices to shared wifi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# Developer
+
+# Xcode
+alias deriveddata='cd ~/Library/Developer/Xcode/DerivedData/'
+alias clear-deriveddata='rm -rf ~/Library/Developer/Xcode/DerivedData/'
+alias xcodeclean='rm -frd ~/Library/Developer/Xcode/DerivedData/* && rm -frd ~/Library/Caches/com.apple.dt.Xcode/*; open -a Xcode'
+alias deleteSimulators="xcrun simctl list | grep -oh '[A-Z0-9]\{8\}-[A-Z0-9]\{4\}-[A-Z0-9]\{4\}-[A-Z0-9]\{4\}-[A-Z0-9]\{12\}' | xargs -I{} xcrun simctl erase {}"
+
+alias rebundle='rm -rf Pods Podfile.lock; bundle install; bundle exec pod install --verbose; open *.xcworkspace/'
+alias podfile='sublime Podfile'
+
+# Ruby
+alias be='bundle exec'
+
+# Carthage
+alias carthage-clear='rm -rf ~/Library/Caches/org.carthage.CarthageKit'
+alias carthage-update='ca-clear && carthage update --platform iOS'
+alias carthage-remove-folder='rm -rf Carthage/'
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# Lock screen.
+
+alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# Shorter commands for `Homebrew`.
+
+alias brewd="brew doctor"
+alias brewi="brew install"
+alias brewr="brew uninstall"
+alias brews="brew search"
+alias brewu="brew update \
+                && brew upgrade \
+                && brew cleanup"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# Clear DNS cache.
+
+alias dns-clear-cache="sudo dscacheutil -flushcache; \
+                       sudo killall -HUP mDNSResponder"
+
+alias dns-fix='sudo discoveryutil mdnsactivedirectory yes && sudo discoveryutil udnsflushcaches'
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# Empty the trash, the main HDD and on all mounted volumes,
+# and clear Apple’s system logs to improve shell startup speed.
+
+alias empty-trash="sudo rm -frv /Volumes/*/.Trashes; \
+                   sudo rm -frv ~/.Trash; \
+                   sudo rm -frv /private/var/log/asl/*.asl; \
+                   sqlite3 ~/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV* 'delete from LSQuarantineEvent'"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# Hide/Show desktop icons.
+
+alias hide-desktop-icons="defaults write com.apple.finder CreateDesktop -bool false \
+                            && killall Finder"
+
+alias show-desktop-icons="defaults write com.apple.finder CreateDesktop -bool true \
+                            && killall Finder"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# IP.
+
+alias local-ip="ipconfig getifaddr en1"
+alias public-ip='dig +short myip.opendns.com @resolver1.opendns.com'
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# Open from the terminal.
+
+alias o="open"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# Others
+
+# NVM (Node Version Manager)
+export NVM_DIR="~/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# RVM (Ruby Version Manager)
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+
+# iTerm
+test -e "${HOME}/.iterm2_shell_integration.bash" && source "${HOME}/.iterm2_shell_integration.bash"
