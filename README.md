@@ -39,15 +39,14 @@ The setup process will:
 * Create some additional [directories][dirs].
 * [Symlink][symlink] the [`git`][git] and [`shell`][shell] files.
 * Install applications / command-line tools for
-  [`macOS`][install macos] / [`Ubuntu`][install ubuntu].
-* Set custom [`macOS`][preferences macos] /
-  [`Ubuntu`][preferences ubuntu] preferences.
+  [`macOS`][install macos].
+* Set custom [`macOS`][preferences macos].
 
 Setup process in action:
 
-| ![Setup process on macOS][setup macos] | ![Setup process on Ubuntu][setup ubuntu] |
-|:---:|:---:|
-| `macOS` | `Ubuntu` |
+| ![Setup process on macOS][setup macos] |
+|:---:|
+| `macOS` |
 
 Customize
 ---------
@@ -84,30 +83,6 @@ export PATH
 
 ```
 
-#### `~/.gitconfig.local`
-
-The `~/.gitconfig.local` file will be automatically included after
-the configurations from `~/.gitconfig`, thus, allowing its content
-to overwrite or add to the existing `Git` configurations.
-
-__Note:__ Use `~/.gitconfig.local` to store sensitive information
-such as the `Git` user credentials, e.g.:
-
-```bash
-[commit]
-
-    # Sign commits using GPG.
-    # https://help.github.com/articles/signing-commits-using-gpg/
-
-    gpgsign = true
-
-[user]
-
-    name = XXXX XXXX
-    email = account@example.com
-    signingkey = XXXXXXXX
-```
-
 ### Forks
 
 If you decide to [fork] this project, do not forget to substitute
@@ -128,15 +103,15 @@ Screenshots
 
 Output for `Git status`:
 
-| ![Output for Git status on macOS][git output macos] | ![Output for Git status on Ubuntu][git output ubuntu] |
-|:---:|:---:|
-| `macOS` | `Ubuntu` |
+| ![Output for Git status on macOS][git output macos] |
+|:---:|
+| `macOS`|
 
 Output for `Git log`:
 
-| ![Output for Git log on macOS][git log macos] | ![Output for Git log on Ubuntu][git log ubuntu] |
-|:---:|:---:|
-| `macOS` | `Ubuntu` |
+| ![Output for Git log on macOS][git log macos] |
+|:---:|
+| `macOS` |
 
 License
 -------
@@ -148,19 +123,14 @@ The code is available under the [MIT license][license].
 [dirs]: src/os/create_directories.sh
 [fork]: https://help.github.com/en/github/getting-started-with-github/fork-a-repo
 [git log macos]: https://cloud.githubusercontent.com/assets/1223565/10560966/e4ec08a6-7523-11e5-8941-4e12f6550a63.png
-[git log ubuntu]: https://cloud.githubusercontent.com/assets/1223565/10560955/4b5e1300-7523-11e5-9e96-95ea67de9474.png
 [git output macos]: https://cloud.githubusercontent.com/assets/1223565/10561038/f9f11a28-7525-11e5-8e1d-a304ad3557f9.png
-[git output ubuntu]: https://cloud.githubusercontent.com/assets/1223565/8397636/3708d218-1ddb-11e5-9d40-21c6871271b9.png
 [git]: src/git
 [install macos]: src/os/install/macos
-[install ubuntu]: src/os/install/ubuntu
 [license]: LICENSE
 [preferences macos]: src/os/preferences/macos
-[preferences ubuntu]: src/os/preferences/ubuntu
 [repo]: https://github.com/filipejtdias
 [setup macos]: https://cloud.githubusercontent.com/assets/1223565/19314446/cd89a592-90a2-11e6-948d-9d75247088ba.gif
 [setup script]: https://github.com/filipejtdias/dotfiles/src/os/setup.sh#L3
-[setup ubuntu]: https://cloud.githubusercontent.com/assets/1223565/19048636/e23e347a-89af-11e6-853c-98616b75b6ae.gif
 [setup]: src/os/setup.sh
 [shell]: src/shell
 [symlink]: src/os/create_symbolic_links.sh

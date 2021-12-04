@@ -39,11 +39,9 @@ cask "suspicious-package"
 cask "tunnelblick"
 cask "vlc"
 cask "webpquicklook"
-cask "zeplin"
 
 mas "The Unarchiver", id: 425424353
 mas "VPN Unlimited", id: 727593140
-mas "Wunderlist", id: 410628904
 mas "1 Password", id: 1333542190
 mas "Feedly", id: 865500966 
 mas "Trello", id: 1278508951

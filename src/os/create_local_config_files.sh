@@ -19,29 +19,14 @@ create_bash_local() {
 
 }
 
-create_gitconfig_local() {
+create_bash_work() {
 
-    declare -r FILE_PATH="$HOME/.gitconfig.local"
+    declare -r FILE_PATH="$HOME/.bash.work"
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     if [ ! -e "$FILE_PATH" ] || [ -z "$FILE_PATH" ]; then
-
-        printf "%s\n" \
-"[commit]
-
-    # Sign commits using GPG.
-    # https://help.github.com/articles/signing-commits-using-gpg/
-
-    # gpgsign = true
-
-
-[user]
-
-    name =
-    email =
-    # signingkey =" \
-        >> "$FILE_PATH"
+        printf "%s\n\n" "#!/bin/bash" >> "$FILE_PATH"
     fi
 
     print_result $? "$FILE_PATH"
@@ -55,7 +40,7 @@ main() {
     print_in_purple "\n • Create local config files\n\n"
 
     create_bash_local
-    create_gitconfig_local
+    create_bash_work
 
 }
 
