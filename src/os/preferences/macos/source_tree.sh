@@ -16,7 +16,10 @@ execute "defaults write com.torusknot.SourceTreeNotMAS gitFetchPrune -int 1" \
 execute "defaults write com.torusknot.SourceTreeNotMAS useFixedWithCommitFont -int 1" \
 	"Use fixed-width font for commit messages"
 
-execute "defaults write com.torusknot.SourceTreeNotMAS DidShowGettingStarted -bool true" \
+execute "defaults write com.torusknot.SourceTreeNotMAS DidShowGettingStarted -bool true &&
+		 defaults write com.torusknot.SourceTreeNotMAS STWelcomeConfiguration -bool true && \
+		 defaults write com.torusknot.SourceTreeNotMAS SUHasLaunchedBefore -bool true && \
+		 defaults write com.torusknot.SourceTreeNotMAS STWelcomeStageLicense -bool true" \
 	"Disable Getting Started Screen"
 
 execute "defaults write com.torusknot.SourceTreeNotMAS defaultFolder -string '~/code/'" \
@@ -30,3 +33,20 @@ execute "defaults write com.torusknot.SourceTreeNotMAS gitRebaseTrackingBranches
 
 execute "defaults write com.torusknot.SourceTreeNotMAS gitPerformSubmoduleActionsRecursively -bool true" \
 	"Git perform submodules actions recursively"
+
+execute "defaults write com.torusknot.SourceTreeNotMAS gitPushAllTags -bool false" \
+	"Disable push tags"
+
+execute "defaults write com.torusknot.SourceTreeNotMAS showToolbarTip -bool false && \
+		 defaults write com.torusknot.SourceTreeNotMAS showStagingTip -bool false && \
+		 defaults write com.torusknot.SourceTreeNotMAS gitSuppWarnOnAmend -bool true && \
+		 defaults write com.torusknot.SourceTreeNotMAS warnForcePush -bool false" \
+	"Disable show tips & warnings"
+
+execute "defaults write com.torusknot.SourceTreeNotMAS fileStatusStagingViewMode -int 1 && \
+		 defaults write com.torusknot.SourceTreeNotMAS fileStatusFilterMode -int 1 && \
+		 defaults write com.torusknot.SourceTreeNotMAS fileStatusViewMode2 -int 2" \
+	"View Preferences"
+
+execute "defaults write com.torusknot.SourceTreeNotMAS SUEnableAutomaticChecks -bool true" \
+	"Enable automatic updates"
