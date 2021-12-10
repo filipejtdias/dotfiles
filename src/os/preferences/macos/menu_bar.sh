@@ -13,6 +13,9 @@ execute "defaults write com.apple.systemuiserver menuExtras -array '/System/Libr
 execute "defaults write com.apple.menuextra.battery ShowPercent -string 'YES'" \
     "Show battery percentage from the menu bar"
 
+execute "defaults write com.apple.controlcenter BatteryShowPercentage -bool true" \
+    "Show battery percentage from the menu bar (BigSur and above)"
+
 execute "defaults write com.apple.menuextra.battery ShowTime -string 'YES'" \
     "Show remaining battery time"
 

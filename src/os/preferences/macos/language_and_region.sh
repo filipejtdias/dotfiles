@@ -14,12 +14,5 @@ execute "defaults write -g AppleMeasurementUnits -string 'Centimeters' && \
 execute "defaults write NSGlobalDomain AppleMetricUnits -bool true" \
 	"Set Metrics Units"
 
-execute "defaults write NSGlobalDomain AppleLocale -string 'pt_PT@currency=EUR'" \
-	"Currency"
-
-# see sudo systemsetup -listtimezones for other values
-execute "sudo systemsetup -settimezone 'Europe/London' > /dev/null" \
-	"Set the timezone"
-
 execute "defaults write -g AppleTemperatureUnit -string 'Celsius'" \
 	"Temperature units" 
