@@ -12,3 +12,6 @@ execute "sudo spctl --master-disable" \
 ./xcode.sh
 ./homebrew.sh
 ./rvm.sh
+
+execute 'while read url; do open -a Safari "$url"; done < urls.txt' \
+    "Open URLs in Safari to install software that can't be automated"
