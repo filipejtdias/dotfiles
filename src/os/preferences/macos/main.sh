@@ -13,6 +13,8 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 
 ./activity_monitor.sh
 ./app_store.sh
+./better_snap_tool.sh
+./calendar.sh
 ./chrome.sh
 ./dock.sh
 ./energy.sh

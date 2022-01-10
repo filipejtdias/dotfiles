@@ -18,6 +18,10 @@ set_symlink() {
     return $?
 }
 
+open_sublime() {
+    open -a 'Sublime Text'
+}
+
 download() {
     local url="$1"
     curl -O "$url" &> /dev/null
@@ -68,6 +72,7 @@ remove_license_prompt() {
 
 main() {
 	set_symlink
+    open_sublime
 	download_sublime_package_control
 	install_packages
 	ask_for_sudo
