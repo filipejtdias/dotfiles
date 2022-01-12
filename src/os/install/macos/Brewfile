@@ -18,6 +18,7 @@ brew "libyaml"
 brew "mas"
 brew "pkg-config"
 brew "zlib"
+brew "vapor"
 
 cask "osxfuse"
 cask "franz"
