@@ -20,7 +20,7 @@ brew "pkg-config"
 brew "zlib"
 brew "vapor"
 
-cask "osxfuse"
+cask "macfuse"
 cask "franz"
 cask "imageoptim"
 cask "iterm2"
