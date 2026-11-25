@@ -1,0 +1,2 @@
+# Profile-specific git settings (not identity). Symlinked to ~/.gitconfig.profile.
+# Name and email live in the untracked ~/.gitconfig.local, set by install.sh.
