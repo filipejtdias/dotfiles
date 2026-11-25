@@ -1,0 +1,11 @@
+# Work profile packages. Installed after the base Brewfile.
+
+# CLI tools
+brew "libimobiledevice"
+brew "xcodegen"
+
+# Casks
+cask "android-ndk"
+cask "android-platform-tools"
+cask "android-studio"
+cask "temurin@25"

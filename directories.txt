@@ -1,0 +1,6 @@
+# Directories created by install.sh (base, then profiles/<name>/directories.txt).
+# One path per line; blank lines and # comments (also after a path) are ignored.
+# A leading ~ expands to $HOME; paths outside $HOME are refused.
+
+~/code/personal
+~/code/work

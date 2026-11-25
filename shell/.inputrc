@@ -1,0 +1,21 @@
+# Readline library configuration options.
+# http://ss64.com/bash/syntax-inputrc.html
+
+# Make TAB cycle through completions.
+TAB: menu-complete
+
+# Arrow keys search history by partial match.
+"\e[A":history-search-backward
+"\e[B":history-search-forward
+
+# Disable beeping and window flashing.
+set bell-style none
+
+# Use case-insensitive TAB autocompletion.
+set completion-ignore-case on
+
+# Partial completion on first Tab, cycle on second.
+set menu-complete-display-prefix on
+
+# Display all matching files on ambiguous completion.
+set show-all-if-ambiguous on

@@ -1,0 +1,5 @@
+# Pages opened by install.sh (after confirmation) for apps installed by hand.
+# One URL per line; blank lines and # comments are ignored.
+
+# Grok Bot (not on Homebrew or the Mac App Store)
+https://x.ai/bot

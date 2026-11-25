@@ -1,0 +1,19 @@
+# Profile and machine-local overrides (Include must precede Host blocks;
+# missing files are ignored)
+Include ~/.ssh/config.profile
+Include ~/.ssh/config.local
+
+# SSH Config
+# Add your host configurations below.
+#
+# Example:
+# Host myserver
+#     HostName example.com
+#     User myuser
+#     IdentityFile ~/.ssh/id_ed25519
+
+# Use keychain for all hosts
+Host *
+    AddKeysToAgent yes
+    UseKeychain yes
+    IdentityFile ~/.ssh/id_ed25519

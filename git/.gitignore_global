@@ -1,0 +1,77 @@
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.AppleDouble
+.LSOverride
+.Spotlight-V100
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+.localized
+Icon
+
+# Editor backups
+*~
+
+# Vim
+*.sw[a-z]
+*.un~
+.netrwhist
+Session.vim
+
+# VS Code
+.vscode/settings.json
+.vscode/launch.json
+
+# Node
+node_modules/
+npm-debug.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+*.egg-info/
+
+# Environment
+.env
+.env.local
+
+# Xcode
+DerivedData/
+xcuserdata/
+*.xccheckout
+*.xcscmblueprint
+*.moved-aside
+
+# Swift / SPM
+.build/
+*.ipa
+*.dSYM
+*.dSYM.zip
+*.hmap
+*.xccheckout
+timeline.xctimeline
+playground.xcworkspace
+
+# CocoaPods
+Pods/
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output
+
+# Ruby
+*.gem
+*.rbc
+.bundle/
+vendor/bundle
+.byebug_history
+
+**/.claude/settings.local.json

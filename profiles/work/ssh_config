@@ -1,0 +1,5 @@
+# Work SSH hosts. Symlinked to ~/.ssh/config.profile.
+# Example:
+# Host git.example.com
+#     User git
+#     IdentityFile ~/.ssh/id_ed25519
