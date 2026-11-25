@@ -34,6 +34,7 @@ cask "claude"
 cask "displaylink"
 cask "fork"
 cask "google-chrome"
+cask "chatgpt"
 
 # Quick Look plugins (appex-based, compatible with modern macOS)
 cask "qlmarkdown"

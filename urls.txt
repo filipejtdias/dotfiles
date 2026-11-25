@@ -3,3 +3,6 @@
 
 # Grok Bot (not on Homebrew or the Mac App Store)
 https://x.ai/bot
+
+# OpenAI Codex desktop app (the Homebrew cask is discontinued)
+https://openai.com/codex

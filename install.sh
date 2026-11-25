@@ -145,6 +145,9 @@ ask_git_value() {
     printf -v "$var" '%s' "${answer:-$current}"
 }
 
+DOTFILES_XCODE_APP="${DOTFILES_XCODE_APP:-/Applications/Xcode.app}"
+XCODE_APP_STORE_ID=497799835
+
 if $SKIP_QUESTIONS; then
     DO_BREWFILE=true
     DO_MACOS_DEFAULTS=true
@@ -164,18 +167,38 @@ fi
 # Ask for sudo password upfront (keeps it alive for the rest of the script)
 # ==============================================================================
 
-if $DO_MACOS_DEFAULTS || $DO_APPS || $DO_BREWFILE; then
+# Always needed: the mandatory Xcode step selects Xcode and accepts its license with sudo
+NEEDS_SUDO=true
+
+if $NEEDS_SUDO; then
     echo ""
     print_header "Sudo"
     echo "  Some settings require administrator privileges."
     sudo -v
-    # Keep sudo alive in the background
-    while true; do
-        sudo -n true
-        sleep 30
-        kill -0 "$$" || exit
-    done &> /dev/null &
+    # Keep sudo alive in the background. It cannot prompt, so if the credential
+    # is reset mid-run (Homebrew or a cask installer can do that) it warns once;
+    # refresh_sudo re-authenticates at the steps that need it.
+    (
+        warned=false
+        while true; do
+            if sudo -n true 2> /dev/null; then
+                warned=false
+            elif ! $warned; then
+                warned=true
+                printf "${YELLOW}  [warn] sudo session expired; you may be asked for your password again${NC}\n" >&2
+            fi
+            sleep 30
+            kill -0 "$$" 2> /dev/null || exit
+        done
+    ) &
+    SUDO_KEEPALIVE_PID=$!
+    trap 'kill "$SUDO_KEEPALIVE_PID" 2> /dev/null || true' EXIT
 fi
+
+# Re-authenticates only if the cached credential lapsed (no prompt otherwise)
+refresh_sudo() {
+    if $NEEDS_SUDO; then sudo -v; fi
+}
 
 echo ""
 print_header "Installing — no more prompts from here on"
@@ -211,6 +234,58 @@ if ! command -v brew &> /dev/null; then
     exit 1
 fi
 
+# Xcode comes before everything else that needs it (Brewfile tools, Dock, app defaults).
+# It is installed from the Mac App Store, which requires being signed in. The Xcode
+# license is then accepted on the user's behalf (running the installer means agreeing).
+install_xcode() {
+    if [ -d "$DOTFILES_XCODE_APP" ]; then
+        print_skip "Xcode already installed"
+        return 0
+    fi
+    echo "  Installing Xcode from the Mac App Store (download is over 10 GB, this may take a while)..."
+    if ! command -v mas &> /dev/null; then
+        brew install mas || true
+    fi
+    if command -v mas &> /dev/null && mas install "$XCODE_APP_STORE_ID" && [ -d "$DOTFILES_XCODE_APP" ]; then
+        print_success "Xcode installed"
+        return 0
+    fi
+    print_error "Xcode could not be installed. Sign in to the App Store (usually the cause), then re-run ./install.sh (it is safe to re-run)."
+    print_error "No later steps were run. Xcode is required."
+    return 1
+}
+
+accept_xcode_license() {
+    echo "  Accepting the Xcode license (you agree to Apple's Xcode terms by running this installer)"
+    refresh_sudo
+    # A fresh Mac only has the Command Line Tools shim; xcodebuild needs the full Xcode selected
+    if [ "$(xcode-select -p 2> /dev/null)" != "$DOTFILES_XCODE_APP/Contents/Developer" ]; then
+        if sudo xcode-select -s "$DOTFILES_XCODE_APP/Contents/Developer"; then
+            print_success "Selected $DOTFILES_XCODE_APP as the active developer directory"
+        else
+            print_error "Could not select Xcode. Run: sudo xcode-select -s \"$DOTFILES_XCODE_APP/Contents/Developer\" then re-run ./install.sh"
+            return 1
+        fi
+    fi
+    if xcodebuild -license check &> /dev/null; then
+        print_skip "Xcode license already accepted"
+    elif sudo xcodebuild -license accept; then
+        print_success "Xcode license accepted"
+    else
+        print_error "Could not accept the Xcode license. Run: sudo xcodebuild -license accept then re-run ./install.sh"
+        return 1
+    fi
+    if sudo xcodebuild -runFirstLaunch; then
+        print_success "Xcode first launch tasks done"
+    else
+        print_skip "Warning: xcodebuild -runFirstLaunch failed; open Xcode once to finish its setup"
+    fi
+}
+
+print_header "\nXcode"
+install_xcode || exit 1
+accept_xcode_license || exit 1
+
 # Newer Homebrew refuses to load formulae/casks from third-party taps until they
 # are trusted, which makes `brew bundle` fail. Trust only the taps listed here.
 TRUSTED_TAPS=(
@@ -243,9 +318,14 @@ if $DO_BREWFILE; then
     else
         print_skip "This Homebrew has no 'brew trust'; skipping tap trust"
     fi
+    if grep -q '^mas ' "$DOTFILES_DIR/Brewfile" "$PROFILE_DIR/Brewfile" 2> /dev/null; then
+        echo "  Mac App Store apps are listed: make sure you're signed in to the App Store first."
+    fi
+    refresh_sudo
     brew bundle --file="$DOTFILES_DIR/Brewfile"
     print_success "Brewfile packages installed"
     if [ -f "$PROFILE_DIR/Brewfile" ]; then
+        refresh_sudo
         brew bundle --file="$PROFILE_DIR/Brewfile"
         print_success "Profile '$PROFILE' Brewfile packages installed"
     fi
@@ -407,9 +487,11 @@ write_git_identity
 print_header "\nmacOS defaults"
 
 if $DO_MACOS_DEFAULTS; then
+    refresh_sudo
     bash "$DOTFILES_DIR/macos/defaults.sh"
     # dock.sh picks up the profile's dock.sh via these variables
     DOTFILES_DIR="$DOTFILES_DIR" DOTFILES_PROFILE="$PROFILE" bash "$DOTFILES_DIR/macos/dock.sh"
+    refresh_sudo
     bash "$DOTFILES_DIR/macos/energy.sh"
     print_success "macOS defaults applied"
 else
@@ -423,6 +505,7 @@ fi
 print_header "\nApp defaults"
 
 if $DO_APPS; then
+    refresh_sudo
     bash "$DOTFILES_DIR/apps/defaults.sh"
     if [ -f "$PROFILE_DIR/defaults.sh" ]; then
         bash "$PROFILE_DIR/defaults.sh"

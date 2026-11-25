@@ -59,8 +59,9 @@ The one-liners clone the repo to `~/code/dotfiles` (or run `git pull --rebase` i
 - macOS only. The installer exits with an error on any other OS.
 - Intel and Apple Silicon are both handled (Homebrew prefix `/usr/local` or `/opt/homebrew`, picked from `uname -m`).
 - `git` and `curl` (shipped with macOS / Xcode Command Line Tools).
-- Administrator rights: `sudo` is requested up front when Homebrew packages, macOS defaults or app defaults are selected.
+- Administrator rights: `sudo` is always requested up front (the Xcode step needs it).
 - Homebrew is installed automatically if missing (non-interactive, using the official installer).
+- Xcode is required and installed automatically (over 10 GB, from the Mac App Store with `mas`, before everything else). You must be signed in to the App Store before running.
 - The repo must live at `~/code/dotfiles`. Run from anywhere else, the installer clones a fresh copy there (or runs `git pull --rebase` if one exists) and re-executes from it.
 
 ## Options
@@ -152,14 +153,16 @@ How the shell loads: `.zprofile` sets up Homebrew; `.zshrc` sets zsh options, so
    - open download pages for manual installs (`urls.txt`); never done with `-y`
    - git name and email (kept silently if already in `~/.gitconfig.local`, unless `--reconfigure`)
 4. Requests `sudo` once and keeps it alive for the run.
-5. Homebrew: loads it into the session, or installs it. With the Brewfile step selected, it taps and trusts the third-party taps in `TRUSTED_TAPS` (if this Homebrew has `brew trust`), then runs `brew bundle` for `Brewfile` and `profiles/<name>/Brewfile`.
-6. Opens the URLs in `urls.txt` and `profiles/<name>/urls.txt`, if you said yes.
-7. Creates the directories in `directories.txt` and `profiles/<name>/directories.txt` (always, including with `-y`; only paths under `$HOME`, existing ones are left alone).
-8. Symlinks the dotfiles (see the table below). Existing files are moved to `~/.dotfiles_backup/<timestamp>/` first.
-9. Saves the profile to `~/.dotfiles-profile`, links the profile's `gitconfig` and `ssh_config`, creates an empty `shell/aliases.local.zsh` if missing.
-10. Writes the git identity to `~/.gitconfig.local`; warns if it is still unset.
-11. Runs `macos/defaults.sh`, `macos/dock.sh`, `macos/energy.sh` (if selected).
-12. Runs `apps/defaults.sh`, then `profiles/<name>/defaults.sh` if present (if selected).
+5. Homebrew: loads it into the session, or installs it.
+6. Xcode (mandatory, always runs): the install is skipped if `/Applications/Xcode.app` exists; otherwise installs it with `mas` (App Store id 497799835), installing `mas` first if needed. If that fails (usually not signed in to the App Store), the installer stops with an error before any later step; sign in and re-run it. Then it selects Xcode as the active developer directory if needed, accepts the Xcode license (`sudo xcodebuild -license accept`, skipped if already accepted; stops with an error if that fails) and runs `sudo xcodebuild -runFirstLaunch` (a failure there is only a warning).
+7. With the Brewfile step selected, it taps and trusts the third-party taps in `TRUSTED_TAPS` (if this Homebrew has `brew trust`), then runs `brew bundle` for `Brewfile` and `profiles/<name>/Brewfile`.
+8. Opens the URLs in `urls.txt` and `profiles/<name>/urls.txt`, if you said yes.
+9. Creates the directories in `directories.txt` and `profiles/<name>/directories.txt` (always, including with `-y`; only paths under `$HOME`, existing ones are left alone).
+10. Symlinks the dotfiles (see the table below). Existing files are moved to `~/.dotfiles_backup/<timestamp>/` first.
+11. Saves the profile to `~/.dotfiles-profile`, links the profile's `gitconfig` and `ssh_config`, creates an empty `shell/aliases.local.zsh` if missing.
+12. Writes the git identity to `~/.gitconfig.local`; warns if it is still unset.
+13. Runs `macos/defaults.sh`, `macos/dock.sh`, `macos/energy.sh` (if selected).
+14. Runs `apps/defaults.sh`, then `profiles/<name>/defaults.sh` if present (if selected).
 
 </details>
 
@@ -207,6 +210,8 @@ profiles/               personal/ and work/ layers (see Profiles)
 - Several `defaults` changes need a logout or restart to fully apply; the script restarts Dock, Finder, SystemUIServer and cfprefsd itself.
 - Some settings are written but may not be honoured on recent macOS (the scripts note this): Safari preferences (sandboxed container), Mission Control and screensaver idle-time keys. Set these in System Settings or Safari Settings if they do not take effect.
 - Zoom's menu bar icon can only be hidden in the app (work profile).
+- The installer asks for your password up front and, if macOS resets it mid-run (a Homebrew or cask installer can), again at the Homebrew, macOS defaults and app defaults steps.
+- Sign in to the App Store before running: Xcode and the `mas` apps in the Brewfile need it. The installer accepts the Xcode license on your behalf, so by running it you agree to Apple's Xcode terms. Xcode cannot be skipped.
 - Granting Touch ID for `sudo` edits `/etc/pam.d/sudo_local`.
 - The timezone is set to `Europe/London` with `systemsetup`, which may need Full Disk Access for the terminal; failure is ignored. The macOS defaults also hard-code metric units, a 24-hour clock, a Monday week start and a Cmd+section-sign shortcut. Edit `macos/defaults.sh` to taste.
 - Energy settings (`pmset`) and the screen lock delay are applied by `macos/energy.sh`.

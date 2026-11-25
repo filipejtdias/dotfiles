@@ -23,6 +23,13 @@ echo "Configuring Dock apps..."
 # Clear all current Dock items
 dockutil --remove all --no-restart
 
+# Current Xcode ships DeviceHub (Contents/Applications); older Xcode ships Simulator.
+XCODE_APP="/Applications/Xcode.app"
+XCODE_DEVICE_APP="$XCODE_APP/Contents/Applications/DeviceHub.app"
+if [ ! -e "$XCODE_DEVICE_APP" ]; then
+    XCODE_DEVICE_APP="$XCODE_APP/Contents/Developer/Applications/Simulator.app"
+fi
+
 # Define Dock apps in order.
 # "SPACER" inserts a spacer tile.
 DOCK_APPS=(
@@ -32,8 +39,8 @@ DOCK_APPS=(
     "/Applications/Safari.app"
     "SPACER"
     "/Applications/Sourcetree.app"
-    "/Applications/Xcode.app"
-    "/Applications/Xcode.app/Contents/Developer/Applications/Simulator.app"
+    "$XCODE_APP"
+    "$XCODE_DEVICE_APP"
     "/Applications/Sublime Text.app"
     "/Applications/RapidAPI.app"
     "SPACER"
