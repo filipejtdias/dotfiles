@@ -1,6 +1,58 @@
 # Dotfiles
 
-macOS dotfiles: zsh, git, SSH, Homebrew packages, system and app preferences, and a Dock layout, installed by a single idempotent script. A small profile system layers per-machine-role extras (for example `work`) on top of a common base.
+A macOS setup for zsh, git, SSH, Homebrew, system and app preferences, and the Dock, installed by one idempotent script with a common base and optional per-machine profiles.
+
+## Install
+
+Personal machine (default profile):
+
+```bash
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/filipejtdias/dotfiles/main/install.sh)"
+```
+
+Work machine (`work` profile):
+
+```bash
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/filipejtdias/dotfiles/main/install.sh)" -- --profile work
+```
+
+Unattended (no prompts, git identity from environment variables):
+
+```bash
+GIT_NAME="Jane Doe" GIT_EMAIL="jane@example.com" bash -c "$(curl -fsSL https://raw.githubusercontent.com/filipejtdias/dotfiles/main/install.sh)" -- -y
+```
+
+Add `--profile work` after `--` to combine it with `-y`.
+
+From an existing clone:
+
+```bash
+./install.sh --profile <name>
+```
+
+The one-liners clone the repo to `~/code/dotfiles` (or run `git pull --rebase` if it is already there) and re-run the installer from the clone. The chosen profile is saved to `~/.dotfiles-profile` and reused on later runs, so `--profile` is only needed the first time or when switching.
+
+## Contents
+
+- [What you get](#what-you-get)
+- [Requirements](#requirements)
+- [Options](#options)
+- [Profiles](#profiles)
+- [Local overrides and secrets](#local-overrides-and-secrets)
+- [Customising](#customising)
+- [How it works](#how-it-works)
+- [Manual steps and known limits](#manual-steps-and-known-limits)
+- [Uninstall and restore](#uninstall-and-restore)
+- [License](#license)
+
+## What you get
+
+- A common base plus profile layers (`personal`, `work`) selected with `--profile`.
+- Homebrew packages, macOS defaults, per-app preferences and a Dock layout, each step optional.
+- A zsh setup: options, aliases, exports, functions and prompt, split into small files.
+- Git identity prompted for (or passed via environment), never hardcoded in the repo.
+- Secrets and machine-specific settings kept in untracked `*.local` files.
+- Safe re-runs: existing files are backed up, correct links are skipped.
 
 ## Requirements
 
@@ -11,32 +63,19 @@ macOS dotfiles: zsh, git, SSH, Homebrew packages, system and app preferences, an
 - Homebrew is installed automatically if missing (non-interactive, using the official installer).
 - The repo must live at `~/code/dotfiles`. Run from anywhere else, the installer clones a fresh copy there (or runs `git pull --rebase` if one exists) and re-executes from it.
 
-## Quick start
-
-One-liner:
-
-```bash
-bash -c "$(curl -fsSL https://raw.github.com/filipejtdias/dotfiles/main/install.sh)"
-```
-
-Or clone and run:
-
-```bash
-git clone https://github.com/filipejtdias/dotfiles.git ~/code/dotfiles
-cd ~/code/dotfiles
-./install.sh
-```
-
-Options:
+## Options
 
 | Option | Effect |
 | --- | --- |
-| `-y`, `--yes` | Skip all prompts and answer yes to everything except opening download pages (see below) |
-| `--profile <name>` | Use `profiles/<name>/` (default `personal`); saved for later runs |
-| `--profile=<name>` | Same as above |
+| `-y`, `--yes` | Skip all prompts and answer yes to everything except opening download pages (never done with `-y`) |
+| `--profile <name>`, `--profile=<name>` | Use `profiles/<name>/` (default `personal`); saved for later runs |
 | `--reconfigure` | Ask for the git name and email again, offering the saved values as defaults |
 
-Environment variables `GIT_NAME` and `GIT_EMAIL` provide the git identity non-interactively:
+| Environment variable | Effect |
+| --- | --- |
+| `GIT_NAME`, `GIT_EMAIL` | Git identity for non-interactive runs (use with `-y`) |
+
+Examples from a clone:
 
 ```bash
 GIT_NAME="Jane Doe" GIT_EMAIL="jane@example.com" ./install.sh -y
@@ -44,20 +83,68 @@ GIT_NAME="Jane Doe" GIT_EMAIL="jane@example.com" ./install.sh -y
 ./install.sh --reconfigure
 ```
 
-Arguments for the one-liner go after `--`:
+When the installer finishes, open a new terminal to load the shell config.
 
-```bash
-bash -c "$(curl -fsSL https://raw.github.com/filipejtdias/dotfiles/main/install.sh)" -- --profile work
+## Profiles
+
+The base config is common to every machine. A profile layers machine-role specifics on top. Precedence: base, then profile, then `*.local` files.
+
+| Profile | Contents |
+| --- | --- |
+| `personal` | Default; essentially empty |
+| `work` | Extra tooling, Outlook/Defender/Zoom defaults, extra Dock entries, Tuist/make aliases |
+
+Selection: `--profile <name>` accepts any directory under `profiles/` (letters, digits, `.`, `_`, `-`; no leading dot). The choice is written to `~/.dotfiles-profile`, which is machine-local and untracked. Later runs without the flag reuse it. With nothing saved and no flag, an interactive run asks `Profile [personal]:` and `-y` uses `personal`.
+
+A profile directory can contain any of these files, all optional:
+
+```
+profiles/<name>/
+  Brewfile        brew bundle, run after the base Brewfile
+  defaults.sh     run after apps/defaults.sh
+  dock.sh         sourced by macos/dock.sh; set EXTRA_DOCK_APPS=(...) to append Dock items
+  zsh/*.zsh       sourced by .zshrc after shell/*.zsh, before shell/*.local.zsh
+  gitconfig       linked to ~/.gitconfig.profile (git settings, not identity)
+  ssh_config      linked to ~/.ssh/config.profile
+  urls.txt        extra download pages, opened like the base urls.txt
+  directories.txt extra directories to create, same format as the base directories.txt
 ```
 
-The script is safe to re-run.
+To add a profile, create `profiles/<name>/` with any of the files above and run `./install.sh --profile <name>`.
 
-## What the installer does
+## Local overrides and secrets
 
-In order:
+Nothing machine-specific or secret belongs in tracked files. These are never committed (`.gitignore` covers `*.local`, `*.local.zsh`, `.DS_Store`):
+
+| File | Purpose |
+| --- | --- |
+| `~/.gitconfig.local` | Git name and email, written by the installer; loaded last, wins over the profile |
+| `~/.ssh/config.local` | Private SSH hosts and keys; included by `ssh/config` (missing file is ignored) |
+| `shell/*.local.zsh` | Local aliases, exports, tokens; `shell/aliases.local.zsh` is created empty by the installer |
+| `~/.dotfiles-profile` | Selected profile name |
+
+## Customising
+
+| To add | Do this |
+| --- | --- |
+| Package | Add a `brew`, `cask` or `mas "Name", id: N` line to `Brewfile` (or `profiles/<name>/Brewfile`) |
+| Third-party tap | Add `tap "owner/repo"` to the Brewfile and the same name to `TRUSTED_TAPS` in `install.sh` |
+| Dock app | Add an absolute path (or `"SPACER"`) to `DOCK_APPS` in `macos/dock.sh`; missing apps are skipped with a warning. Per profile, set `EXTRA_DOCK_APPS` in `profiles/<name>/dock.sh` |
+| macOS or app preference | Add a `defaults write` block to `macos/defaults.sh` or `apps/defaults.sh` (or `profiles/<name>/defaults.sh`), following the existing sections |
+| Download page | Add a URL to `urls.txt` (or `profiles/<name>/urls.txt`), one per line; `#` comments and blank lines are ignored |
+| Directory | Add a path under `$HOME` to `directories.txt` (or `profiles/<name>/directories.txt`), one per line; `~` expands to `$HOME`, `#` comments and blank lines are ignored |
+| Dotfile | Put it in the right directory, add a `create_symlink` line in `install.sh`, re-run |
+| Alias, export, function | Edit the matching file under `shell/`, or add a new `shell/<name>.zsh` |
+
+## How it works
+
+How the shell loads: `.zprofile` sets up Homebrew; `.zshrc` sets zsh options, sources `shell/*.zsh` (skipping `*.local.zsh`), then `profiles/<name>/zsh/*.zsh`, then `shell/*.local.zsh`, and activates `mise` if `~/.local/bin/mise` exists.
+
+<details>
+<summary>Installer steps, in order</summary>
 
 1. Checks the OS is macOS, bootstraps the clone at `~/code/dotfiles` if needed, parses flags.
-2. Resolves the profile (see Profiles) and detects the architecture.
+2. Resolves the profile (see [Profiles](#profiles)) and detects the architecture.
 3. Asks everything upfront (skipped with `-y`):
    - install Homebrew packages from the Brewfiles
    - apply macOS defaults (Dock, Finder, Trackpad, Energy, etc.)
@@ -74,7 +161,10 @@ In order:
 11. Runs `macos/defaults.sh`, `macos/dock.sh`, `macos/energy.sh` (if selected).
 12. Runs `apps/defaults.sh`, then `profiles/<name>/defaults.sh` if present (if selected).
 
-Symlinks created:
+</details>
+
+<details>
+<summary>Symlinks created</summary>
 
 | Source | Target |
 | --- | --- |
@@ -91,35 +181,10 @@ Symlinks created:
 
 A profile link left over from a previously selected profile is removed if the new profile does not provide that file.
 
-When finished, open a new terminal to load the shell config.
+</details>
 
-## Profiles
-
-The base config is common to every machine. A profile layers machine-role specifics on top. Precedence: base, then profile, then `*.local` files.
-
-```
-profiles/<name>/
-  Brewfile        brew bundle, run after the base Brewfile
-  defaults.sh     run after apps/defaults.sh
-  dock.sh         sourced by macos/dock.sh; set EXTRA_DOCK_APPS=(...) to append Dock items
-  zsh/*.zsh       sourced by .zshrc after shell/*.zsh, before shell/*.local.zsh
-  gitconfig       linked to ~/.gitconfig.profile (git settings, not identity)
-  ssh_config      linked to ~/.ssh/config.profile
-  urls.txt        extra download pages, opened like the base urls.txt
-  directories.txt extra directories to create, same format as the base directories.txt
-```
-
-All files are optional. Shipped profiles are `personal` (the default, essentially empty) and `work` (extra tooling, Outlook/Defender/Zoom defaults, extra Dock entries, Tuist/make aliases).
-
-Selection: `--profile <name>` accepts any directory under `profiles/` (letters, digits, `.`, `_`, `-`; no leading dot). The choice is written to `~/.dotfiles-profile`, which is machine-local and untracked. Later runs without the flag reuse it. With nothing saved and no flag, an interactive run asks `Profile [personal]:` and `-y` uses `personal`.
-
-To add a profile, create `profiles/<name>/` with any of the files above and run:
-
-```bash
-./install.sh --profile <name>
-```
-
-## Repository layout
+<details>
+<summary>Repository layout</summary>
 
 ```
 install.sh              Installer
@@ -135,29 +200,7 @@ apps/                   defaults.sh (per-app prefs); iterm2/ holds the iTerm2 pr
 profiles/               personal/ and work/ layers (see Profiles)
 ```
 
-How the shell loads: `.zprofile` sets up Homebrew; `.zshrc` sets zsh options, sources `shell/*.zsh` (skipping `*.local.zsh`), then `profiles/<name>/zsh/*.zsh`, then `shell/*.local.zsh`, and activates `mise` if `~/.local/bin/mise` exists.
-
-## Local overrides and secrets
-
-Nothing machine-specific or secret belongs in tracked files. These are never committed (`.gitignore` covers `*.local`, `*.local.zsh`, `.DS_Store`):
-
-| File | Purpose |
-| --- | --- |
-| `~/.gitconfig.local` | Git name and email, written by the installer; loaded last, wins over the profile |
-| `~/.ssh/config.local` | Private SSH hosts and keys; included by `ssh/config` (missing file is ignored) |
-| `shell/*.local.zsh` | Local aliases, exports, tokens; `shell/aliases.local.zsh` is created empty by the installer |
-| `~/.dotfiles-profile` | Selected profile name |
-
-## Customising
-
-- Package: add a `brew`, `cask` or `mas "Name", id: N` line to `Brewfile` (or `profiles/<name>/Brewfile`).
-- Third-party tap: add `tap "owner/repo"` to the Brewfile and the same name to `TRUSTED_TAPS` in `install.sh`.
-- Dock app: add an absolute path (or `"SPACER"`) to `DOCK_APPS` in `macos/dock.sh`; missing apps are skipped with a warning. Per profile, set `EXTRA_DOCK_APPS` in `profiles/<name>/dock.sh`.
-- macOS or app preference: add a `defaults write` block to `macos/defaults.sh` or `apps/defaults.sh` (or `profiles/<name>/defaults.sh`), following the existing sections.
-- Download page: add a URL to `urls.txt` (or `profiles/<name>/urls.txt`), one per line; `#` comments and blank lines are ignored.
-- Directory: add a path under `$HOME` to `directories.txt` (or `profiles/<name>/directories.txt`), one per line; `~` expands to `$HOME`, `#` comments and blank lines are ignored.
-- New dotfile: put it in the right directory, add a `create_symlink` line in `install.sh`, re-run.
-- Aliases, exports, functions: edit the matching file under `shell/`, or add a new `shell/<name>.zsh`.
+</details>
 
 ## Manual steps and known limits
 
@@ -181,3 +224,7 @@ mv ~/.dotfiles_backup/<timestamp>/.zshrc ~/
 ```
 
 The installer does not revert `defaults` changes, `pmset` settings, installed packages or the Dock layout; undo those with `defaults delete`, `pmset`, `brew uninstall` or System Settings.
+
+## License
+
+Released under the [MIT License](LICENSE).
